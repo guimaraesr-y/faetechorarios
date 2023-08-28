@@ -9,10 +9,10 @@
                 <span class="input-group-text" id="basic-addon1">Código</span>
                 <input class="form-control" type="text" name="id" placeholder="ID da sala" value="{{ _GET['id'] }}" readonly>
             </div>
-            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da sala" value="{{ _GET['nome'] }}">
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da sala" value="{{ _GET['nome'] }}" autofocus>
         {% else %}
             <h2 class="mb-4">Adicionar Sala</h2>
-            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da sala">
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da sala" autofocus>
         {% endif %}
 
         <button type="submit" class="btn btn-primary">Salvar</button>
