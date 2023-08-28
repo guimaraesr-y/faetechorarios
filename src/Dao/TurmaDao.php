@@ -72,10 +72,7 @@ class TurmaDao
         $stmt->execute();
 
         $turmaId = empty($data['id']) ? $con->lastInsertId() : (int) $data['id'];
-        print($turmaId);
         $turma_professores = ProfessorDao::getProfessoresByTurmaId($turmaId);
-        print_r ($turma_professores) . '<br>';
-        print_r ($data['professores']);
 
         // função array_filter para encontrar os professores ausentes em $data['professores']
         $professoresParaDeletar = array_filter($turma_professores, function ($professor) use ($data) {
@@ -97,15 +94,26 @@ class TurmaDao
 
         $con->beginTransaction();
         foreach ($data['professores'] as $professorId) {
-            // verifica se o professor já está relacionado à turma
-            if (!in_array($professorId, $turma_professores)) {
-                // insere o relacionamento na tabela professor_turma
+            $shouldInsert = true;
+            
+            // Verificar se o professorId já está em $turma_professores
+            foreach ($turma_professores as $turma_professor) {
+                if ($turma_professor['professor_id'] == $professorId) {
+                    $shouldInsert = false;
+                    break; // Não é necessário continuar verificando
+                }
+            }
+        
+            // Se $shouldInsert ainda for verdadeiro, o professorId não está em $turma_professores
+            if ($shouldInsert) {
+                // Insere o relacionamento na tabela professor_turma
                 $stmt = $con->prepare('INSERT INTO professor_turma (turma_id, professor_id) VALUES (:turma_id, :professor_id)');
                 $stmt->bindParam(':turma_id', $turmaId);
                 $stmt->bindParam(':professor_id', $professorId);
                 $stmt->execute();
             }
         }
+        
         $con->commit();
     }
 
