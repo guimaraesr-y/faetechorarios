@@ -107,8 +107,6 @@
                             </td>
                         {% endif %}
                     {% endfor %}
-
-
                 </tr>
             {% endfor %}
         </table>
@@ -116,7 +114,7 @@
 
         <div class='pt-5'>
             <button onclick='salvarTabelas()' class="btn btn-primary">Salvar</button>
-            <button class="btn btn-secondary">Exportar Planilhas</button>
+            <button class="btn btn-secondary" onclick='window.location.href="/planilha?turma_id={{ _GET['turma_id'] }}"'>Exportar Planilha</button>
         </div>
     </div>
 </div>

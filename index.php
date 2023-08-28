@@ -25,6 +25,8 @@ $router->get("/salas", "SalaController:show", "sala.show");
 $router->post("/salas", "SalaController:store", "sala.store");
 $router->post("/salas/delete", "SalaController:delete", "sala.delete");
 
+$router->get("/planilha", "ExportarPlanilhaController:show", "exportarPlanilha.show");
+
 /**
  * This method executes the routes
  */
