@@ -15,4 +15,10 @@ class SalaController extends Controller
         ]);
     }
 
+    public function store($data)
+    {
+        SalaDao::store($data);
+        header('Location: /salas');
+    }
+
 }
