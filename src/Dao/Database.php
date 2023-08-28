@@ -72,48 +72,4 @@ class Database
 
         $con->exec($sql);
     }
-
-    public static function seed()
-    {
-        $con = self::getConnection();
-
-        $sql = `
-            -- Inserir dados na tabela 'turmas'
-            INSERT INTO turmas (nome, turno)
-            VALUES
-                ('Turma A', 'Manhã'),
-                ('Turma B', 'Tarde'),
-                ('Turma C', 'Noite');
-            
-            -- Inserir dados na tabela 'salas'
-            INSERT INTO salas (nome)
-            VALUES
-                ('Sala 101'),
-                ('Sala 102'),
-                ('Sala 103');
-            
-            -- Inserir dados na tabela 'professores'
-            INSERT INTO professores (nome)
-            VALUES
-                ('Professor 1'),
-                ('Professor 2'),
-                ('Professor 3');
-            
-            -- Inserir dados na tabela 'professor_turma'
-            INSERT INTO professor_turma (professor_id, turma_id)
-            VALUES
-                (1, 1), -- Professor 1 na Turma A
-                (2, 2), -- Professor 2 na Turma B
-                (3, 3); -- Professor 3 na Turma C
-            
-            -- Inserir dados na tabela 'horarios'
-            INSERT INTO horarios (sala_id, professor_turma_id, horario, dia)
-            VALUES
-                (1, 1, 1, 1), -- Sala 101, Professor 1 na Turma A, Horário 1, Segunda-feira
-                (2, 2, 2, 2), -- Sala 102, Professor 2 na Turma B, Horário 2, Terça-feira
-                (3, 3, 3, 3); -- Sala 103, Professor 3 na Turma C, Horário 3, Quarta-feira;
-            `;
-
-        $con->exec($sql);
-    }
 }
