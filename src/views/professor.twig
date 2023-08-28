@@ -9,12 +9,12 @@
                 <span class="input-group-text" id="basic-addon1">Código</span>
                 <input class="form-control" type="text" name="id" placeholder="ID do professor" value="{{ _GET['id'] }}" readonly>
             </div>
-            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome do professor" value="{{ _GET['nome'] }}">
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome do professor" value="{{ _GET['nome'] }}" autofocus>
             <input class="form-control mb-2" type="text" name="tempos_semanais" placeholder="Tempos Semanais" value="{{ _GET['tempos_semanais'] }}">
         {% else %}
             <h2 class="mb-4">Adicionar Professor</h2>
             {# <input class="form-control mb-2" type="text" name="id" placeholder="ID do professor"> #}
-            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome do professor">
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome do professor" autofocus>
             <input class="form-control mb-2" type="text" name="tempos_semanais" placeholder="Tempos Semanais">
         {% endif %}
         

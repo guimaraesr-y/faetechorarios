@@ -3,13 +3,13 @@
 {% block content %}
 <div class='container'>
     <form method='POST' class='p-5'>
-        {% if turmaSelecionada is defined %}
+        {% if turmaSelecionada != null %}
             <h2 class="mb-4">Editar Turma</h2>
             <div class='input-group mb-2'>
                 <span class="input-group-text" id="basic-addon1">Código</span>
                 <input class="form-control" type="text" name="id" placeholder="ID da turma" value="{{ turmaSelecionada['id'] }}" readonly>
             </div>
-            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da turma" value="{{ turmaSelecionada['nome'] }}">
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da turma" value="{{ turmaSelecionada['nome'] }}" autofocus>
             <select name="turno" class='form-select w-25'>
                 <option value="" {{ turmaSelecionada['turno'] is defined ? '' : 'selected' }}>Selecione um turno</option>
                 <option value="Manhã" {{ turmaSelecionada['turno'] == 'Manhã' ? 'selected' : '' }}>Manhã</option>
@@ -18,7 +18,7 @@
             </select>
         {% else %}
             <h2 class="mb-4">Adicionar Turma</h2>
-            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da turma">
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da turma" autofocus>
             {# <input class="form-control mb-2" type="text" name="turno" placeholder="Turno"> #}
             <select name="turno" class='form-select w-25'>
                 <option value="" selected>Selecione um turno</option>
@@ -30,6 +30,7 @@
 
         <div class='row py-4'>
             <h4>Selecione os professores:</h4>
+
             {% for professor in professores %}
                 <div class='col-md-3'>
                     <input 
@@ -38,7 +39,7 @@
                         name='professores[]' 
                         value='{{ professor.id }}' 
                         role='button'
-                        {{ turmaSelecionada.professores|filter(id => id == professor.id) ? 'checked' : '' }}
+                        {% if professor['id'] in turmaSelecionada.professores %} checked {% endif %}
                         >
                     <label for='{{ professor.nome }}-checkbox' role='button'>{{ professor.nome }}</label>
                 </div>
