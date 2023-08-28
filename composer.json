@@ -1,0 +1,20 @@
+{
+    "name": "faetec/grade-horaria",
+    "description": "Sistema de organização de horários e grades dos alunos",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ryan de Almeida Guimarães",
+            "email": "guimaraesryan26@gmail.com"
+        }
+    ],
+    "require": {
+        "twig/twig": "^3.7",
+        "coffeecode/router": "^2.0"
+    }
+}

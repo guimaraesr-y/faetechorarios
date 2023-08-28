@@ -1,0 +1,84 @@
+{% extends 'layouts/app.twig' %}
+
+{% block content %}
+<div class='container'>
+    <form method='POST' class='p-5'>
+        {% if turmaSelecionada is defined %}
+            <h2 class="mb-4">Editar Turma</h2>
+            <div class='input-group mb-2'>
+                <span class="input-group-text" id="basic-addon1">Código</span>
+                <input class="form-control" type="text" name="id" placeholder="ID da turma" value="{{ turmaSelecionada['id'] }}" readonly>
+            </div>
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da turma" value="{{ turmaSelecionada['nome'] }}">
+            <select name="turno" class='form-select w-25'>
+                <option value="" {{ turmaSelecionada['turno'] is defined ? '' : 'selected' }}>Selecione um turno</option>
+                <option value="Manhã" {{ turmaSelecionada['turno'] == 'Manhã' ? 'selected' : '' }}>Manhã</option>
+                <option value="Tarde" {{ turmaSelecionada['turno'] == 'Tarde' ? 'selected' : '' }}>Tarde</option>
+                <option value="Noite" {{ turmaSelecionada['turno'] == 'Noite' ? 'selected' : '' }}>Noite</option>
+            </select>
+        {% else %}
+            <h2 class="mb-4">Adicionar Turma</h2>
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da turma">
+            {# <input class="form-control mb-2" type="text" name="turno" placeholder="Turno"> #}
+            <select name="turno" class='form-select w-25'>
+                <option value="" selected>Selecione um turno</option>
+                <option value="Manhã">Manhã</option>
+                <option value="Tarde">Tarde</option>
+                <option value="Noite">Noite</option>
+            </select>
+        {% endif %}
+
+        <div class='row py-4'>
+            <h4>Selecione os professores:</h4>
+            {% for professor in professores %}
+                <div class='col-md-3'>
+                    <input 
+                        id='{{ professor.nome }}-checkbox' 
+                        type='checkbox' 
+                        name='professores[]' 
+                        value='{{ professor.id }}' 
+                        role='button'
+                        {{ turmaSelecionada.professores|filter(id => id == professor.id) ? 'checked' : '' }}
+                        >
+                    <label for='{{ professor.nome }}-checkbox' role='button'>{{ professor.nome }}</label>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        {{ _GET['id'] ? "Ou <a href='/turmas'>adicionar turma</a>" }}
+    </form>
+    <table class='table table-hover'>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Turno</th>
+                <th>Editar</th>
+                <th>Excluir</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for turma in turmas %}
+                <tr>
+                    <td>{{ turma.id }}</td>
+                    <td>{{ turma.nome }}</td>
+                    <td>{{ turma.turno }}</td>
+                    <td>
+                        <a class="link-underline link-underline-opacity-0" href="/turmas?id={{ turma.id }}">
+                        📝
+                        </a>
+                    </td>
+                    <td>
+                        <form action="/turmas/delete" method="post">
+                            <input type="hidden" name="id" value="{{ turma.id }}">
+                            <input class="bg-transparent border-0" type="submit" value="🗑️">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

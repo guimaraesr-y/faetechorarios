@@ -1,0 +1,123 @@
+{% extends 'layouts/app.twig' %}
+
+{% block content %}
+<div class='py-5'>
+    <script>
+        const horariosIndisponiveis = {{ horariosIndisponiveis|json_encode|raw }}
+    </script>
+    <div class='container mb-5'>
+        <h3>Filtrar por turma:</h3>
+        <form class='d-flex gap-3'>
+            <select name="turma_id" class='form-select w-25'>
+                <option value="" {{ _GET['turma_id'] is defined ? '' : 'selected' }}>Selecione uma turma</option>
+                {% for turma in turmas %}
+                    <option value="{{ turma['id'] }}" {{ _GET['turma_id'] == turma['id'] ? 'selected' : '' }}>{{ turma['nome'] }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </form>
+    </div>
+
+    <div class='container accordion mb-5'>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Ver Tempos dos Professores
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <ul class='list-group' id='temposProfessores'>
+                        {% for professor in professores %}
+                            <li class='list-group-item'>
+                                {{ professor.nome }}
+                                <div class="progress" role="progressbar">
+                                    <div id='prof_{{ professor.professor_id }}_progress' max_tempos='{{ professor.tempos_semanais }}' class="progress-bar" style="width: 0%"></div>
+                                </div>
+                                <p id='prof_{{ professor.professor_id }}_texto'></p>
+                            </li>
+                        {% endfor %}
+                        {# ADICIONAR VALORES REAIS ABAIXO DA PROGRESS BAR
+                        ADICIONAR BLOQUEIO DE PROFESSOR QUANDO CHEGAR AO MÁXIMO #}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class='container'>
+        <h3 class='mb-5'>Turno: {{ turmas|filter(sala => sala.id == _GET['turma_id'])|first.turno }}</h3>
+
+        {% for sala in salas %}
+        <h3>{{ sala['nome'] }}</h3>
+
+        <table class='table table-hover mb-5'>
+            <tr>
+                <th>Horários</th>
+                <th>Segunda</th>
+                <th>Terça</th>
+                <th>Quarta</th>
+                <th>Quinta</th>
+                <th>Sexta</th>
+            </tr>
+            {# Itera entre os 6 tempos do turno #}
+            {% for i in range(0, 5) %}
+                <tr>
+                    <td>{{ i+1 }}º tempo</td>
+                    
+                    {# Um for para iterar nos dias da semana #}
+                    {% for dia in range(0, 4) %}
+                        {# Filtra os horarios indisponíveis pela sala_id e horario atual, caso 
+                            houver itens no array, os horarios serão desabilitados na célula da tabela #}
+                        {% set turmaSelecionada = (turmas|filter(t => t['id'] == _GET['turma_id']))[0] %}
+
+                        {% if (horariosIndisponiveis|filter(h => h['sala_id'] == sala['id'] and h['horario'] == i and h['dia'] == dia)) %}
+                            <td>
+                                <select name='{{ dia }}_{{ i }}_{{ sala['id'] }}' class='form-select' disabled>
+                                    <option value='0'>🔒 Indisponível</option>
+                                </select>
+                            </td>
+                        {% else %}
+                            {# filtra e seta o horário indicado pela célula atualmente
+                                conforme o dia, horario e id da sala #}
+                            {% set horario = (turmaHorarios|filter(h => h['dia'] == dia and h['horario'] == i and h['sala_id'] == sala['id']))|first %}
+                            <td>
+                                <select name='{{ dia }}_{{ i }}_{{ sala['id'] }}' 
+                                        class='form-select' 
+                                        horario_id='{{ horario['horario_id'] ?? 0 }}' 
+                                        horario='{{ i }}'
+                                        sala_id='{{ sala["id"] }}' 
+                                        dia='{{ dia }}'
+                                        turma_id='{{ turmaSelecionada['id'] }}'
+                                    >
+                                    <option value='0' {{ not horario ? 'selected' : '' }}></option>
+                                    {% for professor in professores %}
+                                        <option 
+                                            {{ (horario['professor_id'] == professor['professor_id'])
+                                                ? 'selected' 
+                                                : '' }} 
+                                            value="{{ professor['professor_turma_id'] }}"
+                                            professor_id="{{ professor['professor_id'] }}"
+                                            >
+                                                {{ professor['nome'] }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+
+
+                </tr>
+            {% endfor %}
+        </table>
+        {% endfor %}
+
+        <div class='pt-5'>
+            <button onclick='salvarTabelas()' class="btn btn-primary">Salvar</button>
+            <button class="btn btn-secondary">Exportar Planilhas</button>
+        </div>
+    </div>
+</div>
+{% endblock %} 
