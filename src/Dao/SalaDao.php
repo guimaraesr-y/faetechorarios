@@ -12,6 +12,16 @@ class SalaDao {
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    public static function getSalaById($salaId)
+    {
+        $con = Database::getConnection();
+        $stmt = $con->prepare('SELECT * FROM salas WHERE id = :id');
+        $stmt->bindParam(':id', $salaId);
+        $stmt->execute();
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     public static function store($data)
     {
         $con = Database::getConnection();

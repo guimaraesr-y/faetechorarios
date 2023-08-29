@@ -8,9 +8,12 @@ class ProfessorController extends Controller
 {
     public function show()
     {
+        $professorId = $_GET['id'] ?? null;
+
         self::render('professor.twig', [
             'professores' => ProfessorDao::getAll(),
-            '_GET' => $_GET
+            'professorSelecionado' => $professorId ? ProfessorDao::getProfessorById($professorId)[0] : [],
+            '_GET' => $_GET,
         ]);
     }
 

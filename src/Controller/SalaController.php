@@ -9,9 +9,12 @@ class SalaController extends Controller
 
     public function show()
     {
+        $salaId = $_GET['id'] ?? null;
+
         return self::render('sala.twig', [
+            'salas' => SalaDao::getAll(),
+            'salaSelecionada' => $salaId ? SalaDao::getSalaById($salaId)[0] : [],
             '_GET' => $_GET,
-            'salas' => SalaDao::getAll()
         ]);
     }
 

@@ -12,6 +12,17 @@ class ProfessorDao
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    public static function getProfessorById(int $professorId)
+    {
+        $con = Database::getConnection();
+
+        $stmt = $con->prepare('SELECT * FROM professores WHERE id = :id');
+        $stmt->bindParam(':id', $professorId);
+        $stmt->execute();
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     public static function getProfessoresByTurmaId(int $id)
     {
         $con = Database::getConnection();

@@ -9,11 +9,10 @@
                 <span class="input-group-text" id="basic-addon1">Código</span>
                 <input class="form-control" type="text" name="id" placeholder="ID do professor" value="{{ _GET['id'] }}" readonly>
             </div>
-            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome do professor" value="{{ _GET['nome'] }}" autofocus>
-            <input class="form-control mb-2" type="text" name="tempos_semanais" placeholder="Tempos Semanais" value="{{ _GET['tempos_semanais'] }}">
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome do professor" value="{{ professorSelecionado['nome'] }}" autofocus>
+            <input class="form-control mb-2" type="text" name="tempos_semanais" placeholder="Tempos Semanais" value="{{ professorSelecionado['tempos_semanais'] }}">
         {% else %}
             <h2 class="mb-4">Adicionar Professor</h2>
-            {# <input class="form-control mb-2" type="text" name="id" placeholder="ID do professor"> #}
             <input class="form-control mb-2" type="text" name="nome" placeholder="Nome do professor" autofocus>
             <input class="form-control mb-2" type="text" name="tempos_semanais" placeholder="Tempos Semanais">
         {% endif %}
@@ -39,7 +38,7 @@
                     <td>{{ professor.nome }}</td>
                     <td>{{ professor.tempos_semanais }}</td>
                     <td>
-                        <a class="link-underline link-underline-opacity-0" href="/professores?id={{ professor.id }}&nome={{ professor.nome }}&tempos_semanais={{ professor.tempos_semanais }}">
+                        <a class="link-underline link-underline-opacity-0" href="/professores?id={{ professor.id }}">
                         📝
                         </a>
                     </td>
