@@ -21,4 +21,10 @@ class SalaController extends Controller
         header('Location: /salas');
     }
 
+    public function delete($data)
+    {
+        SalaDao::delete($data['id']);
+        header('Location: /salas');
+    }
+
 }
