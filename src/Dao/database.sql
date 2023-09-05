@@ -4,7 +4,6 @@
 -- OS do Servidor:               Win64
 -- --------------------------------------------------------
 
-
 -- Copiando estrutura do banco de dados para faetechorarios
 CREATE DATABASE IF NOT EXISTS `faetechorarios`;
 USE `faetechorarios`;
@@ -24,30 +23,12 @@ CREATE TABLE IF NOT EXISTS `disciplinas` (
   PRIMARY KEY (`id`)
 );
 
--- Copiando estrutura para tabela faetechorarios.horarios
-CREATE TABLE IF NOT EXISTS `horarios` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `turma_id` int DEFAULT NULL,
-  `tempo_semana_id` int DEFAULT NULL,
-  `sala_id` int DEFAULT NULL,
-  `periodo_letivo_id` int DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `turma_id` (`turma_id`),
-  KEY `tempo_semana_id` (`tempo_semana_id`),
-  KEY `sala_id` (`sala_id`),
-  KEY `periodo_letivo_id` (`periodo_letivo_id`),
-  CONSTRAINT `horarios_ibfk_1` FOREIGN KEY (`turma_id`) REFERENCES `turmas` (`id`),
-  CONSTRAINT `horarios_ibfk_2` FOREIGN KEY (`tempo_semana_id`) REFERENCES `tempo_semana` (`id`),
-  CONSTRAINT `horarios_ibfk_3` FOREIGN KEY (`sala_id`) REFERENCES `salas` (`id`),
-  CONSTRAINT `horarios_ibfk_4` FOREIGN KEY (`periodo_letivo_id`) REFERENCES `periodo_letivo` (`id`)
-);
-
 -- Copiando estrutura para tabela faetechorarios.periodo_letivo
 CREATE TABLE IF NOT EXISTS `periodo_letivo` (
   `id` int NOT NULL AUTO_INCREMENT,
   `especificacao` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
 
 -- Copiando estrutura para tabela faetechorarios.professores
 CREATE TABLE IF NOT EXISTS `professores` (
@@ -66,18 +47,6 @@ CREATE TABLE IF NOT EXISTS `professor_matriculas` (
   KEY `professor_id` (`professor_id`),
   CONSTRAINT `professor_matriculas_ibfk_1` FOREIGN KEY (`professor_id`) REFERENCES `professores` (`id`)
 );
-
--- Copiando estrutura para tabela faetechorarios.professor_turma
-CREATE TABLE IF NOT EXISTS `professor_turma` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `professor_id` int DEFAULT NULL,
-  `turma_id` int DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `professor_id` (`professor_id`),
-  KEY `turma_id` (`turma_id`),
-  CONSTRAINT `professor_turma_ibfk_1` FOREIGN KEY (`professor_id`) REFERENCES `professores` (`id`),
-  CONSTRAINT `professor_turma_ibfk_2` FOREIGN KEY (`turma_id`) REFERENCES `turmas` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Copiando estrutura para tabela faetechorarios.salas
 CREATE TABLE IF NOT EXISTS `salas` (
@@ -110,3 +79,32 @@ CREATE TABLE IF NOT EXISTS `turmas` (
   CONSTRAINT `turmas_ibfk_3` FOREIGN KEY (`disciplina_id`) REFERENCES `disciplinas` (`id`)
 );
 
+-- Copiando estrutura para tabela faetechorarios.professor_turma
+CREATE TABLE IF NOT EXISTS `professor_turma` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `professor_id` int DEFAULT NULL,
+  `turma_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `professor_id` (`professor_id`),
+  KEY `turma_id` (`turma_id`),
+  CONSTRAINT `professor_turma_ibfk_1` FOREIGN KEY (`professor_id`) REFERENCES `professores` (`id`),
+  CONSTRAINT `professor_turma_ibfk_2` FOREIGN KEY (`turma_id`) REFERENCES `turmas` (`id`)
+);
+
+-- Copiando estrutura para tabela faetechorarios.horarios
+CREATE TABLE IF NOT EXISTS `horarios` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `turma_id` int DEFAULT NULL,
+  `tempo_semana_id` int DEFAULT NULL,
+  `sala_id` int DEFAULT NULL,
+  `periodo_letivo_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `turma_id` (`turma_id`),
+  KEY `tempo_semana_id` (`tempo_semana_id`),
+  KEY `sala_id` (`sala_id`),
+  KEY `periodo_letivo_id` (`periodo_letivo_id`),
+  CONSTRAINT `horarios_ibfk_1` FOREIGN KEY (`turma_id`) REFERENCES `turmas` (`id`),
+  CONSTRAINT `horarios_ibfk_2` FOREIGN KEY (`tempo_semana_id`) REFERENCES `tempo_semana` (`id`),
+  CONSTRAINT `horarios_ibfk_3` FOREIGN KEY (`sala_id`) REFERENCES `salas` (`id`),
+  CONSTRAINT `horarios_ibfk_4` FOREIGN KEY (`periodo_letivo_id`) REFERENCES `periodo_letivo` (`id`)
+);
