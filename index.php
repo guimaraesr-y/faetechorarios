@@ -28,6 +28,11 @@ $router->get("/cursos", "CursoController:show", "curso.show");
 $router->post("/cursos", "CursoController:store", "curso.store");
 $router->post("/cursos/delete", "CursoController:delete", "curso.delete");
 
+$router->get("/disciplinas", "DisciplinaController:show", "disciplina.show");
+$router->post("/disciplinas", "DisciplinaController:store", "disciplina.store");
+$router->post("/disciplinas/delete", "DisciplinaController:delete", "disciplina.delete");
+
+// TODO
 $router->get("/planilha", "ExportarPlanilhaController:show", "exportarPlanilha.show");
 
 /**

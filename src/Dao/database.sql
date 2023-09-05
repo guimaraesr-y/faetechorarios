@@ -20,7 +20,10 @@ CREATE TABLE IF NOT EXISTS `disciplinas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nome` varchar(255) DEFAULT NULL,
   `tempos` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `curso_id` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `curso_id` (`curso_id`),
+  CONSTRAINT `FK_disciplinas_cursos` FOREIGN KEY (`curso_id`) REFERENCES `cursos` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
 -- Copiando estrutura para tabela faetechorarios.periodo_letivo

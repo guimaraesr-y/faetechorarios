@@ -1,0 +1,64 @@
+{% extends 'layouts/app.twig' %}
+
+{% block content %}
+<div class='container'>
+    <form method='POST' class='p-5'>
+        {% if _GET['id'] is defined %}
+            <h2 class="mb-4">Editar Disciplina</h2>
+            <div class='input-group mb-2'>
+                <span class="input-group-text" id="basic-addon1">Código</span>
+                <input class="form-control" type="text" name="id" placeholder="ID da disciplina" value="{{ _GET['id'] }}" readonly>
+            </div>
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da disciplina" value="{{ disciplinaSelecionada['nome'] }}" autofocus>
+            <input class="form-control mb-2" type="text" name="tempos" placeholder="Qtd Tempos" value="{{ disciplinaSelecionada['tempos'] }}">
+
+        {% else %}
+            <h2 class="mb-4">Adicionar Disciplina</h2>
+            <input class="form-control mb-2" type="text" name="nome" placeholder="Nome da disciplina" autofocus>
+            <input class="form-control mb-2" type="text" name="tempos" placeholder="Qtd Tempos">
+        {% endif %}
+
+        <select name="turma_id" class='form-select mb-2'>
+            <option value="" {{ _GET['turma_id'] is defined ? '' : 'selected' }}>Selecione um curso</option>
+            {% for curso in cursos %}
+                <option value="{{ curso['id'] }}" {{ disciplinaSelecionada['curso_id'] == curso['id'] ? 'selected' : '' }}>{{ curso['nome'] }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        {{ _GET['id'] ? "Ou <a href='/disciplinas'>adicionar disciplinas</a>" }}
+    </form>
+
+    <table class='table table-hover'>
+        <thead>
+            <tr>
+                <th scope='col'>Código</th>
+                <th scope='col'>Nome</th>
+                <th scope='col'>Qtd Tempos</th>
+                <th scope='col'>Editar</th>
+                <th scope='col'>Excluir</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for disciplina in disciplinas %}
+                <tr>
+                    <th scope="col">{{ disciplina.id }}</th>
+                    <td>{{ disciplina.nome }}</td>
+                    <td>{{ disciplina.tempos }}</td>
+                    <td>
+                        <a class="link-underline link-underline-opacity-0" href="/disciplinas?id={{ disciplina.id }}">
+                        📝
+                        </a>
+                    </td>
+                    <td>
+                        <form action="/disciplinas/delete" method="post">
+                            <input type="hidden" name="id" value="{{ disciplina.id }}">
+                            <input class="bg-transparent border-0" type="submit" value="🗑️">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
