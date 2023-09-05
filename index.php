@@ -9,7 +9,6 @@ $router = new Router("http://127.0.0.1");
 $router->namespace('App\\Controller');
 
 $router->get('/', 'HomeController:index', 'home.index');
-$router->get("/test", "TestController:index", 'test.index');
 $router->post('/salvar-tabelas', 'HomeController:store', 'home.store'); // recebe json
 
 $router->get("/professores", "ProfessorController:show", "professores.show");
@@ -24,6 +23,10 @@ $router->post("/turmas/delete", "TurmaController:delete", "turmas.delete");
 $router->get("/salas", "SalaController:show", "sala.show");
 $router->post("/salas", "SalaController:store", "sala.store");
 $router->post("/salas/delete", "SalaController:delete", "sala.delete");
+
+$router->get("/cursos", "CursoController:show", "curso.show");
+$router->post("/cursos", "CursoController:store", "curso.store");
+$router->post("/cursos/delete", "CursoController:delete", "curso.delete");
 
 $router->get("/planilha", "ExportarPlanilhaController:show", "exportarPlanilha.show");
 
