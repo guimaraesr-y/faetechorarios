@@ -2,16 +2,13 @@
 
 {% block content %}
 <div class='py-5'>
-    <script>
-        const horariosIndisponiveis = {{ horariosIndisponiveis|json_encode|raw }}
-    </script>
     <div class='container mb-5'>
-        <h3>Filtrar por turma:</h3>
+        <h3>Filtrar por período letivo:</h3>
         <form class='d-flex gap-3'>
-            <select name="turma_id" class='form-select w-25'>
-                <option value="" {{ _GET['turma_id'] is defined ? '' : 'selected' }}>Selecione uma turma</option>
-                {% for turma in turmas %}
-                    <option value="{{ turma['id'] }}" {{ _GET['turma_id'] == turma['id'] ? 'selected' : '' }}>{{ turma['nome'] }}</option>
+            <select name="periodoLetivo" class='form-select w-25'>
+                <option value="" {{ _GET['periodoLetivo'] is defined ? '' : 'selected' }}>Selecione um período</option>
+                {% for periodo in periodosLetivos %}
+                    <option value="{{ periodo['id'] }}" {{ periodoLetivo == periodo['id'] ? 'selected' : '' }}>{{ periodo['especificacao'] }}</option>
                 {% endfor %}
             </select>
             <button type="submit" class="btn btn-primary">Filtrar</button>
@@ -22,23 +19,21 @@
         <div class="accordion-item">
             <h2 class="accordion-header">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    Ver Tempos dos Professores
+                    Ver Tempos das Turmas
                 </button>
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
                     <ul class='list-group' id='temposProfessores'>
-                        {% for professor in professores %}
+                        {% for turma in turmas %}
                             <li class='list-group-item'>
-                                {{ professor.nome }}
+                                {{ turma.nomeCurso }} - {{ turma['nomeDisciplina'] }}
                                 <div class="progress" role="progressbar">
-                                    <div id='prof_{{ professor.professor_id }}_progress' max_tempos='{{ professor.tempos_semanais }}' class="progress-bar" style="width: 0%"></div>
+                                    <div turma_id='{{ turma.id }}' max_tempos='{{ turma.cargaHorariaMaxDisc }}' class="progress-bar" style="width: 0%"></div>
                                 </div>
-                                <p id='prof_{{ professor.professor_id }}_texto'></p>
+                                <p id='{{ turma.id }}_progress_texto'></p>
                             </li>
                         {% endfor %}
-                        {# ADICIONAR VALORES REAIS ABAIXO DA PROGRESS BAR
-                        ADICIONAR BLOQUEIO DE PROFESSOR QUANDO CHEGAR AO MÁXIMO #}
                     </ul>
                 </div>
             </div>
@@ -47,75 +42,80 @@
 
 
     <div class='container'>
-        <h3 class='mb-5'>Turno: {{ turmas|filter(sala => sala.id == _GET['turma_id'])|first.turno }}</h3>
+        <h3 class='mb-5'>
+            Turno: 
+            <select name="turno" id="turnoSelect">
+                <option value="" {{ turno is defined ? '' : 'selected' }}>Selecione um turno</option>
+                <option value="MANHA" {{ turno == 'MANHA' ? 'selected' : '' }}>Manhã</option>
+                <option value="TARDE" {{ turno == 'TARDE' ? 'selected' : '' }}>Tarde</option>
+                <option value="NOITE" {{ turno == 'NOITE' ? 'selected' : '' }}>Noite</option>
+            </select>
+            <button onclick='selectTurno(document.querySelector("#turnoSelect"))' class="btn btn-primary">Filtrar</button>
+        </h3>
 
         {% for sala in salas %}
-        <h3>{{ sala['nome'] }}</h3>
-
-        <table class='table table-hover mb-5'>
-            <tr>
-                <th>Horários</th>
-                <th>Segunda</th>
-                <th>Terça</th>
-                <th>Quarta</th>
-                <th>Quinta</th>
-                <th>Sexta</th>
-            </tr>
-            {# Itera entre os 6 tempos do turno #}
-            {% for i in range(0, 5) %}
-                <tr>
-                    <td>{{ i+1 }}º tempo</td>
-                    
-                    {# Um for para iterar nos dias da semana #}
-                    {% for dia in range(0, 4) %}
-                        {# Filtra os horarios indisponíveis pela sala_id e horario atual, caso 
-                            houver itens no array, os horarios serão desabilitados na célula da tabela #}
-                        {% set turmaSelecionada = (turmas|filter(t => t['id'] == _GET['turma_id']))[0] %}
-
-                        {% if (horariosIndisponiveis|filter(h => h['sala_id'] == sala['id'] and h['horario'] == i and h['dia'] == dia)) %}
-                            <td>
-                                <select name='{{ dia }}_{{ i }}_{{ sala['id'] }}' class='form-select' disabled>
-                                    <option value='0'>🔒 Indisponível</option>
-                                </select>
-                            </td>
-                        {% else %}
-                            {# filtra e seta o horário indicado pela célula atualmente
-                                conforme o dia, horario e id da sala #}
-                            {% set horario = (turmaHorarios|filter(h => h['dia'] == dia and h['horario'] == i and h['sala_id'] == sala['id']))|first %}
-                            <td>
-                                <select name='{{ dia }}_{{ i }}_{{ sala['id'] }}' 
-                                        class='form-select' 
-                                        horario_id='{{ horario['horario_id'] ?? 0 }}' 
-                                        horario='{{ i }}'
-                                        sala_id='{{ sala["id"] }}' 
-                                        dia='{{ dia }}'
-                                        turma_id='{{ turmaSelecionada['id'] }}'
-                                    >
-                                    <option value='0' {{ not horario ? 'selected' : '' }}></option>
-                                    {% for professor in professores %}
-                                        <option 
-                                            {{ (horario['professor_id'] == professor['professor_id'])
-                                                ? 'selected' 
-                                                : '' }} 
-                                            value="{{ professor['professor_turma_id'] }}"
-                                            professor_id="{{ professor['professor_id'] }}"
+            <div>
+                <h3>{{ sala['nome'] }}</h3>
+    
+                <table class='table table-hover mb-5' id='sala_{{ sala['id'] }}' data-sala-id='{{ sala['id'] }}'>
+                    <thead>
+                        <tr>
+                            <th>Horários</th>
+                            <th>Segunda</th>
+                            <th>Terça</th>
+                            <th>Quarta</th>
+                            <th>Quinta</th>
+                            <th>Sexta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {# Itera entre os 6 tempos do turno #}
+                        {% for i in range(1, 6) %}
+                            <tr>
+                                <td>{{ i }}º tempo</td>
+                                
+                                {# Um for para iterar as colunas nos dias da semana #}
+                                {% for dia in ['Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta'] %}
+                                    {% 
+                                        set horario = horariosIndisponiveis|filter(
+                                                h => h['sala_id'] == sala['id'] and 
+                                                h['tempo'] == i and h['dia'] == dia)|first 
+                                    %}
+        
+                                    <td>
+                                        <select name='{{ dia }}_{{ i }}_{{ sala['id'] }}' 
+                                                sala_id="{{ sala['id'] }}"
+                                                dia="{{ dia }}"
+                                                tempo="{{ i }}"
+                                                periodo_letivo_id="{{ periodoLetivo }}"        
+                                                class='form-select turma-select'
                                             >
-                                                {{ professor['nome'] }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
-        {% endfor %}
+                                            <option value="-">-</option>
+                                            {% for turma in turmas %}
+                                                <option value="{{ turma.id }}" 
+                                                        {{ horario.turma_id == turma['id'] ? 'selected' : '' }}
+                                                    >
+                                                    {{ turma.nomeCurso }} - {{ turma['nomeDisciplina'] }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                {% endfor %}
+        
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-        <div class='pt-5'>
-            <button onclick='salvarTabelas()' class="btn btn-primary">Salvar</button>
-            <button class="btn btn-secondary" onclick='window.location.href="/planilha?turma_id={{ _GET['turma_id'] }}"'>Exportar Planilha</button>
-        </div>
+                <div class='pt-3 text-end'>
+                    <button onclick="salvarTabela(document.querySelector('#sala_{{ sala['id'] }}'), '{{ turno }}')" class="btn btn-primary">Salvar Horário</button>
+                    <button onclick="exportarTabela('sala_{{ sala['id'] }}', 'pdf')" class="btn btn-secondary">Exportar PDF</button>
+                    <button onclick="exportarTabela('sala_{{ sala['id'] }}', 'excel')" class="btn btn-secondary">Exportar Excel</button>
+                </div>
+            </div>
+            {% endfor %}
+
+        <button onclick="window.location.href='/view-sala'" class="btn btn-primary mt-5">Visualização por Laboratório</button>
     </div>
 </div>
 {% endblock %} 

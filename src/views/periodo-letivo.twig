@@ -1,0 +1,43 @@
+{% extends 'layouts/app.twig' %}
+
+{% block content %}
+<div class='container'>
+    <form method='POST' class='p-5'>
+        <h2 class="mb-4">Adicionar Período Letivo</h2>
+        <div class="inline-flex gap-3">
+            <div class='col input-group mb-2 w-25 w-25' style="min-width: 250px;">
+                <span class="input-group-text" id="basic-addon1">Ano</span>
+                <input name="ano" class="form-control" min="1900" max="2099" step="1" value="2024">
+            </div>
+    
+            <div class='input-group mb-2 w-25 w-25' style="min-width: 250px;">
+                <span class="input-group-text" id="basic-addon1">Período</span>
+                <select name="periodo" class="form-select">
+                    <option value="1">1º Período</option>
+                    <option value="2">2º Período</option>
+                </select>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Adicionar</button>
+    </form>
+
+    <h2>Lista de Períodos Letivos</h2>
+    <table class='table table-hover'>
+        <thead>
+            <tr>
+                <th scope='col'>Código</th>
+                <th scope='col'>Período</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for periodo in periodosLetivos %}
+                <tr>
+                    <th scope="col">{{ periodo.id }}</th>
+                    <td>{{ periodo.especificacao }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

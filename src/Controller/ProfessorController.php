@@ -24,10 +24,19 @@ class ProfessorController extends Controller
     public function store(Array $data)
     {
         if($data['actor'] == 'professor') {
-            ProfessorDao::store($data);
+            if(empty($data['id'])) {
+                ProfessorDao::store($data);
+            } else {
+                ProfessorDao::update($data);
+            }
+
             header('Location: /professores');
         } else {
-            ProfessorMatriculaDao::store($data);
+            if(empty($data['id'])) {
+                ProfessorMatriculaDao::store($data);
+            } else {
+                ProfessorMatriculaDao::update($data);
+            }
         }
 
         header('Location: /professores');
@@ -36,6 +45,12 @@ class ProfessorController extends Controller
     public function delete($data)
     {
         ProfessorDao::delete($data['id']);
+        header('Location: /professores');
+    }
+
+    public static function deleteMatricula($data)
+    {
+        ProfessorMatriculaDao::delete($data['id']);
         header('Location: /professores');
     }
 }

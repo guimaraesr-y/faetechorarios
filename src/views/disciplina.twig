@@ -18,7 +18,7 @@
             <input class="form-control mb-2" type="text" name="tempos" placeholder="Qtd Tempos">
         {% endif %}
 
-        <select name="turma_id" class='form-select mb-2'>
+        <select name="curso_id" class='form-select mb-2'>
             <option value="" {{ _GET['turma_id'] is defined ? '' : 'selected' }}>Selecione um curso</option>
             {% for curso in cursos %}
                 <option value="{{ curso['id'] }}" {{ disciplinaSelecionada['curso_id'] == curso['id'] ? 'selected' : '' }}>{{ curso['nome'] }}</option>
@@ -34,6 +34,7 @@
             <tr>
                 <th scope='col'>Código</th>
                 <th scope='col'>Nome</th>
+                <th scope='col'>Curso</th>
                 <th scope='col'>Qtd Tempos</th>
                 <th scope='col'>Editar</th>
                 <th scope='col'>Excluir</th>
@@ -44,6 +45,7 @@
                 <tr>
                     <th scope="col">{{ disciplina.id }}</th>
                     <td>{{ disciplina.nome }}</td>
+                    <td>{{ disciplina.nomeCurso }}</td>
                     <td>{{ disciplina.tempos }}</td>
                     <td>
                         <a class="link-underline link-underline-opacity-0" href="/disciplinas?id={{ disciplina.id }}">

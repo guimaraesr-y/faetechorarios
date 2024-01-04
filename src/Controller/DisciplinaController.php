@@ -13,7 +13,7 @@ class DisciplinaController extends Controller {
 
         self::render('disciplina.twig', [
             'disciplinas' => DisciplinaDao::getAll(),
-            'disciplinaSelecionada' => $disciplina_id ? DisciplinaDao::getById($disciplina_id)[0] : [],
+            'disciplinaSelecionada' => $disciplina_id ? DisciplinaDao::getById($disciplina_id) : [],
             'cursos' => CursoDao::getAll(),
             '_GET' => $_GET,
         ]);
@@ -21,7 +21,11 @@ class DisciplinaController extends Controller {
 
     public function store($data)
     {
-        DisciplinaDao::store($data);
+        if($data['id']) {
+            DisciplinaDao::update($data);
+        } else {
+            DisciplinaDao::store($data);
+        }
         header('Location: /disciplinas');
     }
 

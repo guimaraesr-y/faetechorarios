@@ -4,11 +4,75 @@ namespace App\Dao;
 
 class TurmaDao
 {
-    public static function getAll()
-    {
+    public static function getTurmas(int $periodoLetivoId) {
         $con = Database::getConnection();
 
-        $stmt = $con->query('SELECT * FROM turmas');
+        // todo
+        $stmt = $con->prepare('SELECT 
+                T.id,
+                T.etapa,
+                T.turno,
+                D.id AS disciplinaId,
+                D.nome AS nomeDisciplina,
+                D.tempos AS temposDisciplina,
+                P.nome AS nomeProfessor,
+                PM.matricula AS matriculaProfessor,
+                PM.carga_horaria cargaHorariaMaxProf,
+                D.tempos AS cargaHorariaDisc,
+                C.id AS cursoId,
+                C.nome AS nomeCurso
+            FROM turmas T
+            
+            INNER JOIN disciplinas D ON T.disciplina_id = D.id
+            INNER JOIN professor_matriculas PM ON T.professor_matricula_id = PM.id
+            INNER JOIN professores P ON PM.professor_id = P.id
+            INNER JOIN cursos C ON T.curso_id = C.id
+            
+            WHERE T.periodo_letivo_id = :periodoLetivoId');
+
+        $stmt->bindParam(':periodoLetivoId', $periodoLetivoId);
+        $stmt->execute();
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public static function getTurmasByTurno(string $turno, int $periodoLetivoId) {
+        $con = Database::getConnection();
+
+        // todo
+        $stmt = $con->prepare('SELECT 
+                T.id,
+                T.etapa,
+                T.turno,
+                D.id AS disciplinaId,
+                D.nome AS nomeDisciplina,
+                D.tempos AS temposDisciplina,
+                P.nome AS nomeProfessor,
+                PM.matricula AS matriculaProfessor,
+                PM.carga_horaria cargaHorariaMaxProf,
+                D.tempos AS cargaHorariaMaxDisc,
+                C.id AS cursoId,
+                C.nome AS nomeCurso
+            FROM turmas T
+            
+            INNER JOIN disciplinas D ON T.disciplina_id = D.id
+            INNER JOIN professor_matriculas PM ON T.professor_matricula_id = PM.id
+            INNER JOIN professores P ON PM.professor_id = P.id
+            INNER JOIN cursos C ON T.curso_id = C.id
+            
+            WHERE T.turno = :turno AND T.periodo_letivo_id = :periodoLetivoId');
+
+        $stmt->bindParam(':turno', $turno);
+        $stmt->bindParam(':periodoLetivoId', $periodoLetivoId);
+        $stmt->execute();
+
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public static function getPeriodosLetivos() {
+        $con = Database::getConnection();
+
+        $stmt = $con->query('SELECT * FROM periodo_letivo');
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
@@ -16,105 +80,76 @@ class TurmaDao
     {
         $con = Database::getConnection();
 
-        $stmt = $con->prepare('SELECT * FROM turmas WHERE id = :turmaId');
-        $stmt->bindParam(':turmaId', $turmaId);
-        $stmt->execute();
-        $turmaSelecionada = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $stmt = $con->prepare('SELECT 
+                T.id,
+                T.etapa,
+                T.turno,
+                T.etapa,
+                T.periodo_letivo_id,
+                D.id AS disciplinaId,
+                D.nome AS nomeDisciplina,
+                D.tempos AS temposDisciplina,
+                P.nome AS nomeProfessor,
+                PM.id AS professorMatriculaId,
+                PM.matricula AS matriculaProfessor,
+                PM.carga_horaria cargaHorariaMax,
+                C.id AS cursoId,
+                C.nome AS nomeCurso
+            FROM turmas T
+            
+            INNER JOIN disciplinas D ON T.disciplina_id = D.id
+            INNER JOIN professor_matriculas PM ON T.professor_matricula_id = PM.id
+            INNER JOIN professores P ON PM.professor_id = P.id
+            INNER JOIN cursos C ON T.curso_id = C.id
+            
+            WHERE T.ID = :turmaId');
 
-        if($turmaSelecionada) {
-            $stmt = $con->prepare('SELECT professor_id FROM professor_turma WHERE turma_id = :turmaId');
-            $stmt->bindParam(':turmaId', $turmaId);
-            $stmt->execute();
-            $professores = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-    
-            $turmaSelecionada['professores'] = $professores;
-        }
-
-        return $turmaSelecionada;
-    }
-
-    /**
-     * Retrieves a list of professors with their IDs, names, and selection status for a given class.
-     *
-     * @param int $turmaId The ID of the class to retrieve professors for.
-     * @throws \PDOException If there is an error executing the SQL statement.
-     * @return array An array of associative arrays containing professor details.
-     */
-    public static function getProfessores($turmaId)
-    {
-        $con = Database::getConnection();
-        
-        $stmt = $con->prepare('SELECT p.id, p.nome,
-                MAX(CASE WHEN pt.turma_id = :turmaId THEN 1 ELSE 0 END) AS is_selected
-            FROM professores p
-            LEFT JOIN professor_turma pt ON p.id = pt.professor_id
-            GROUP BY p.id, p.nome');
         $stmt->bindParam(':turmaId', $turmaId);
         $stmt->execute();
 
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
     public static function store($data)
     {
+        if (empty($data['professor']) ||
+            empty($data['curso']) || 
+            empty($data['turno']) || 
+            empty($data['etapa']) || 
+            empty($data['periodoLetivo']) ||
+            empty($data['disciplina'])) {
+            header('HTTP/1.1 400 Bad Request');
+            die('<script>alert("Preencha todos os campos");window.history.back();</script>');
+        }
+
         $con = Database::getConnection();
         
         // insere ou altera os dados na tabela turma
         $stmt = null;
-        if(empty($data['id'])) {
-            $stmt = $con->prepare('INSERT INTO turmas (nome, turno) VALUES (:nome, :turno)');
-        } else {
-            $stmt = $con->prepare('UPDATE turmas SET nome = :nome, turno = :turno WHERE id = :id');
+        if(empty($data['id'])) { // insert
+            $stmt = $con->prepare('INSERT INTO turmas
+                (curso_id, professor_matricula_id, disciplina_id, periodo_letivo_id, etapa, turno) 
+                VALUES (:cursoId, :professorMatriculaId, :disciplinaId, :periodoLetivoId, :etapa, :turno)');
+        } else { // update
+            $stmt = $con->prepare('UPDATE turmas 
+                SET curso_id = :cursoId, 
+                    professor_matricula_id = :professorMatriculaId, 
+                    disciplina_id = :disciplinaId, 
+                    periodo_letivo_id = :periodoLetivoId, 
+                    etapa = :etapa, 
+                    turno = :turno
+                WHERE id = :id');
             $stmt->bindParam(':id', $data['id']);
-        }
-        $stmt->bindParam(':nome', $data['nome']);
+        } 
+
+        $stmt->bindParam(':cursoId', $data['curso']);
+        $stmt->bindParam(':professorMatriculaId', $data['professor']);
+        $stmt->bindParam(':disciplinaId', $data['disciplina']);
+        $stmt->bindParam(':periodoLetivoId', $data['periodoLetivo']);
+        $stmt->bindParam(':etapa', $data['etapa']);
         $stmt->bindParam(':turno', $data['turno']);
+        
         $stmt->execute();
-
-        $turmaId = empty($data['id']) ? $con->lastInsertId() : (int) $data['id'];
-        $turma_professores = ProfessorDao::getProfessoresByTurmaId($turmaId);
-
-        // função array_filter para encontrar os professores ausentes em $data['professores']
-        $professoresParaDeletar = array_filter($turma_professores, function ($professor) use ($data) {
-            return !in_array($professor['professor_id'], $data['professores']);
-        });
-
-        // deleta os registros da tabela professor_turma que não estão mais associados à turma
-        if (!empty($professoresParaDeletar)) {
-            $placeholders = implode(',', array_fill(0, count($professoresParaDeletar), '?'));
-            $con->beginTransaction();
-            $stmt = $con->prepare("DELETE FROM professor_turma WHERE turma_id = :turma_id AND professor_id IN ($placeholders)");
-            $stmt->bindParam(':turma_id', $turmaId);
-            foreach ($professoresParaDeletar as $index => $professorId) {
-                $stmt->bindValue(($index + 1), $professorId, \PDO::PARAM_INT);
-            }
-            $stmt->execute();
-            $con->commit();
-        }
-
-        $con->beginTransaction();
-        foreach ($data['professores'] as $professorId) {
-            $shouldInsert = true;
-            
-            // Verificar se o professorId já está em $turma_professores
-            foreach ($turma_professores as $turma_professor) {
-                if ($turma_professor['professor_id'] == $professorId) {
-                    $shouldInsert = false;
-                    break; // Não é necessário continuar verificando
-                }
-            }
-        
-            // Se $shouldInsert ainda for verdadeiro, o professorId não está em $turma_professores
-            if ($shouldInsert) {
-                // Insere o relacionamento na tabela professor_turma
-                $stmt = $con->prepare('INSERT INTO professor_turma (turma_id, professor_id) VALUES (:turma_id, :professor_id)');
-                $stmt->bindParam(':turma_id', $turmaId);
-                $stmt->bindParam(':professor_id', $professorId);
-                $stmt->execute();
-            }
-        }
-        
-        $con->commit();
     }
 
     public static function delete($id)

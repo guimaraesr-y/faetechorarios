@@ -12,17 +12,27 @@ class CursoController extends Controller {
 
         self::render('curso.twig', [
             'cursos' => CursoDao::getAll(),
+            'cursoSelecionado' => $curso_id ? CursoDao::getById($curso_id) : [],
+            '_GET' => $_GET,
         ]);
     }
 
-    public function store()
+    public function store($data)
     {
+        if(!empty($data['id'])) {
+            CursoDao::update($data);
+        } else {
+            CursoDao::store($data);
+        }
 
+        header('Location: /cursos');
     }
 
-    public function delete()
+    public function delete($data)
     {
-
+        $curso_id = $data['id'] ?? null;
+        CursoDao::delete($curso_id);
+        header('Location: /cursos');
     }
 
 }

@@ -7,7 +7,7 @@ use App\Dao\ProfessorDao;
 use App\Dao\SalaDao;
 use App\Dao\TurmaDao;
 
-class HomeController extends Controller
+class ViewSalaController extends Controller
 {
     public function index()
     {
@@ -17,16 +17,13 @@ class HomeController extends Controller
         $periodosLetivos = TurmaDao::getPeriodosLetivos();
         $periodoLetivo = isset($_GET['periodoLetivo']) ? $_GET['periodoLetivo'] : end($periodosLetivos)['id'];
 
-        
-        $horariosIndisponiveis = HorarioDao::getHorariosIndisponiveis($turnoSelecionado, $periodoLetivo);
+        $horarios = HorarioDao::getHorariosViewBySala($turnoSelecionado, $periodoLetivo);
         $turmas = TurmaDao::getTurmasByTurno($turnoSelecionado, $periodoLetivo);
         $salas = SalaDao::getAll();
 
-        self::render('index.twig', [
+        self::render('horario-sala.twig', [
             'salas' => $salas,
-            // 'turmas' => $turmas,
-            // 'professores' => $professores,
-            'horariosIndisponiveis' => $horariosIndisponiveis,
+            'horarios' => $horarios,
             'periodoLetivo' => $periodoLetivo,
             'periodosLetivos' => $periodosLetivos,
             'turno' => $turnoSelecionado,
@@ -35,11 +32,6 @@ class HomeController extends Controller
         ]);
     }
 
-    public function store()
-    {
-        $data = json_decode(file_get_contents("php://input"), true);
-        HorarioDao::store($data);
-    }
 }
 
 function getPeriodoAtual() {

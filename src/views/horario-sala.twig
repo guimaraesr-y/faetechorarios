@@ -1,0 +1,70 @@
+{% extends "layouts/app.twig" %}
+
+{% block content %}
+<div class="container">
+    <script src="/static/js/salaView.js"></script>
+
+    <div class='container mb-5'>
+        <h3>Filtrar por período letivo:</h3>
+        <form class='d-flex gap-3'>
+            <select name="periodoLetivo" class='form-select w-25'>
+                <option value="" {{ _GET['periodoLetivo'] is defined ? '' : 'selected' }}>Selecione um período</option>
+                {% for periodo in periodosLetivos %}
+                    <option value="{{ periodo['id'] }}" {{ periodoLetivo == periodo['id'] ? 'selected' : '' }}>{{ periodo['especificacao'] }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </form>
+    </div>
+
+    <h3 class='mb-5'>
+        Turno: 
+        <select name="turno" id="turnoSelect">
+            <option value="" {{ turno is defined ? '' : 'selected' }}>Selecione um turno</option>
+            <option value="MANHA" {{ turno == 'MANHA' ? 'selected' : '' }}>Manhã</option>
+            <option value="TARDE" {{ turno == 'TARDE' ? 'selected' : '' }}>Tarde</option>
+            <option value="NOITE" {{ turno == 'NOITE' ? 'selected' : '' }}>Noite</option>
+        </select>
+        <button onclick='selectTurno(document.querySelector("#turnoSelect"))' class="btn btn-primary">Filtrar</button>
+    </h3>
+
+    <div class='pt-3 text-end'>
+        <button onclick="exportarTabelaSalaView('#table', 'pdf')" class="btn btn-secondary">Exportar PDF</button>
+        <button onclick="exportarTabelaSalaView('#table', 'excel')" class="btn btn-secondary">Exportar Excel</button>
+    </div>
+
+    <table id="table" class="table table-hover mb-5">
+        <thead>
+            <tr>
+                <th style="width: 15px;">Dia</th>
+                <th style="width: 15px;">Tempo</th>
+                {% for sala in salas %}
+                    <th>{{sala.nome}}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, dia in ["Segunda", "Terca", "Quarta", "Quinta", "Sexta"] %}
+                {% for tempo in [1, 2, 3, 4, 5, 6] %}
+                <tr>
+                    <td role="title" style="writing-mode: vertical-rl; rotate: 180deg; text-align: center;">
+                        {{ dia }}
+                    </td>
+
+                    <td style="background-color: rgb(46, 46, 46); color: white;">{{tempo}}</td>
+                    
+                    {# Seta os horários relativos ao horário e tempo atual #}
+                    {% set horariosAtuais = horarios|filter(h => h.dia == dia and h.tempo == tempo) %}
+
+                    {# Itera as salas para preencher a linha #}
+                    {% for sala in salas %}
+                        {% set horario = horariosAtuais|filter(h => h.sala_id == sala.id)|first %}
+                        <td>{{ horario['disciplina_nome'] }} - {{ horario['professor_nome'] }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -33,43 +33,7 @@ class Database
     public static function createDatabase()
     {
         $con = self::getConnection();
-
-        $sql = "
-            CREATE TABLE IF NOT EXISTS turmas (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                turno VARCHAR(255) NOT NULL
-            );
-            
-            CREATE TABLE IF NOT EXISTS salas (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL
-            );
-            
-            CREATE TABLE IF NOT EXISTS professores (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL
-            );
-            
-            CREATE TABLE IF NOT EXISTS professor_turma (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                professor_id INT,
-                turma_id INT,
-                FOREIGN KEY (professor_id) REFERENCES professores(id),
-                FOREIGN KEY (turma_id) REFERENCES turmas(id)
-            );
-            
-            CREATE TABLE IF NOT EXISTS horarios (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                sala_id INT,
-                professor_turma_id INT,
-                horario INT,
-                dia INT,
-                FOREIGN KEY (sala_id) REFERENCES salas(id),
-                FOREIGN KEY (professor_turma_id) REFERENCES professor_turma(id)
-            );
-            ";
-
-        $con->exec($sql);
+        // implement
+        // $con->exec($sql);
     }
 }

@@ -13,7 +13,7 @@ class SalaController extends Controller
 
         return self::render('sala.twig', [
             'salas' => SalaDao::getAll(),
-            'salaSelecionada' => $salaId ? SalaDao::getSalaById($salaId)[0] : [],
+            'salaSelecionada' => $salaId ? SalaDao::getSalaById($salaId) : [],
             '_GET' => $_GET,
         ]);
     }
